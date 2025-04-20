@@ -11,7 +11,7 @@ A simple and extendable backend for task management, built with Go. REST API wit
 - Swagger documentation
 
 ## 📦 Tech Stack
-- Go 1.21+
+- Go 1.24+
 - PostgreSQL
 - Chi (router)
 - GORM (ORM)
