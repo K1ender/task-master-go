@@ -12,9 +12,14 @@ func New(db *gorm.DB, config *config.Config) *chi.Mux {
 	router := chi.NewRouter()
 
 	validator := validator.New(validator.WithRequiredStructEnabled())
+	authHandlers := handlers.NewAuthHandler(db, validator, config)
 
 	router.Post("/register",
-		handlers.NewAuthHandler(db, validator, config).RegisterUser,
+		authHandlers.RegisterUser,
+	)
+
+	router.Post("/login",
+		authHandlers.LoginUser,
 	)
 
 	return router

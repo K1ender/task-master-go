@@ -29,7 +29,7 @@ func SignToken(userID uint, secret string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	ss, err := token.SignedString(secret)
+	ss, err := token.SignedString([]byte(secret))
 
 	return ss, err
 }

@@ -76,3 +76,47 @@ func (h *AuthHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	response.Created(w, map[string]string{"token": ss})
 }
+
+type LoginUserRequest struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required,min=8"`
+}
+
+func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
+	var payload LoginUserRequest
+	if err := utils.ReadJSON(r, &payload); err != nil {
+		response.BadRequest(w, "Bad Request")
+		return
+	}
+
+	if err := h.validate.Struct(payload); err != nil {
+		response.ValidationError(w, err.(validator.ValidationErrors))
+		return
+	}
+
+	var user models.User
+
+	res := h.db.Where("username = ?", payload.Username).First(&user)
+
+	if res.Error != nil {
+		if res.Error == gorm.ErrRecordNotFound {
+			response.NotFound(w, "User not found")
+			return
+		}
+		response.InternalServerError(w)
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(payload.Password)); err != nil {
+		response.Unauthorized(w, "Unauthorized")
+		return
+	}
+
+	ss, err := utils.SignToken(user.ID, h.config.JWT.Secret)
+	if err != nil {
+		response.InternalServerError(w)
+		return
+	}
+
+	response.OK(w, map[string]string{"token": ss})
+}

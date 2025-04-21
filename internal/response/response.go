@@ -40,6 +40,14 @@ func InternalServerError(w http.ResponseWriter) error {
 	return WriteResponse(w, http.StatusInternalServerError, nil, "Internal Server Error")
 }
 
+func NotFound(w http.ResponseWriter, message string) error {
+	return WriteResponse(w, http.StatusNotFound, nil, message)
+}
+
+func Unauthorized(w http.ResponseWriter, message string) error {
+	return WriteResponse(w, http.StatusUnauthorized, nil, message)
+}
+
 type Error struct {
 	Field  string   `json:"field"`
 	Errors []string `json:"errors"`
