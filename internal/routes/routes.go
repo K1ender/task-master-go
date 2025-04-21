@@ -23,18 +23,13 @@ func New(db *gorm.DB, config *config.Config) *chi.Mux {
 	docs.SwaggerInfo.Version = "1.0"
 
 	validator := validator.New(validator.WithRequiredStructEnabled())
+
+	userHandlers := handlers.NewUserHandler(db, validator, config)
 	authHandlers := handlers.NewAuthHandler(db, validator, config)
 	taskHandlers := handlers.NewTaskHandler(db, validator, config)
 
 	authMiddleware := middleware.Auth(db, config.JWT.Secret)
 	taskMiddleware := middleware.TaskMiddleware(db)
-
-	r.Post("/register",
-		authHandlers.RegisterUser,
-	)
-	r.Post("/login",
-		authHandlers.LoginUser,
-	)
 
 	r.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL(
@@ -44,6 +39,17 @@ func New(db *gorm.DB, config *config.Config) *chi.Mux {
 			),
 		),
 	))
+
+	r.Post("/register",
+		authHandlers.RegisterUser,
+	)
+	r.Post("/login",
+		authHandlers.LoginUser,
+	)
+	r.Route("/user", func(r chi.Router) {
+		r.Use(authMiddleware)
+		r.Get("/", userHandlers.GetUser)
+	})
 
 	r.Route("/tasks", func(r chi.Router) {
 		r.Use(authMiddleware)
