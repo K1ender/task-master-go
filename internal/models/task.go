@@ -11,6 +11,6 @@ type Task struct {
 	Body      string       `json:"body" gorm:"not null"`
 	Completed sql.NullBool `json:"completed" gorm:"default:false"`
 	UserID    uint         `json:"-" gorm:"not null"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time    `json:"-"`
+	UpdatedAt time.Time    `json:"-"`
 }

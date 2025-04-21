@@ -7,6 +7,6 @@ type User struct {
 	Username  string `json:"username" gorm:"unique;not null"`
 	Password  string `json:"-" gorm:"not null"`
 	Tasks     []Task `json:"tasks" gorm:"foreignKey:UserID"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
 }
