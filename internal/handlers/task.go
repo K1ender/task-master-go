@@ -31,6 +31,17 @@ type CreateTaskRequest struct {
 	Body  string `json:"body" validate:"required"`
 }
 
+// @Summary Create a new task
+// @Description Create a new task
+// @Tags Task
+// @Accept json
+// @Produce json
+// @Param task body CreateTaskRequest true "Task details"
+// @Success 201 {object} models.Task
+// @Failure 400 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /tasks [post]
+// @Security ApiKeyAuth
 func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetAuthUserFromContext(r.Context())
 	var payload CreateTaskRequest
@@ -60,6 +71,15 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	response.Created(w, task)
 }
 
+// @Summary Get all tasks for a user
+// @Description Get all tasks for a user
+// @Tags Task
+// @Accept json
+// @Produce json
+// @Success 200 {object} []models.Task
+// @Failure 500 {object} response.Response
+// @Router /tasks [get]
+// @Security ApiKeyAuth
 func (h *TaskHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetAuthUserFromContext(r.Context())
 
@@ -75,12 +95,33 @@ func (h *TaskHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	response.OK(w, tasks)
 }
 
+// @Summary Get a task by ID
+// @Description Get a task by ID
+// @Tags Task
+// @Accept json
+// @Produce json
+// @Param id path int true "Task ID"
+// @Success 200 {object} models.Task
+// @Failure 404 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /tasks/{id} [get]
+// @Security ApiKeyAuth
 func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 	task := middleware.GetTaskFromContext(r.Context())
 
 	response.OK(w, task)
 }
 
+// @Summary Delete a task by ID
+// @Description Delete a task by ID
+// @Tags Task
+// @Accept json
+// @Produce json
+// @Param id path int true "Task ID"
+// @Success 204
+// @Failure 500 {object} response.Response
+// @Router /tasks/{id} [delete]
+// @Security ApiKeyAuth
 func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	task := middleware.GetTaskFromContext(r.Context())
 
@@ -100,6 +141,18 @@ type UpdateTaskRequest struct {
 	Completed bool   `json:"completed"`
 }
 
+// @Summary Update a task by ID
+// @Description Update a task by ID
+// @Tags Task
+// @Accept json
+// @Produce json
+// @Param task body UpdateTaskRequest true "Task details"
+// @Param id path int true "Task ID"
+// @Success 200 {object} models.Task
+// @Failure 400 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /tasks/{id} [patch]
+// @Security ApiKeyAuth
 func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetAuthUserFromContext(r.Context())
 	task := middleware.GetTaskFromContext(r.Context())

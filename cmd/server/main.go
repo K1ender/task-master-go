@@ -9,6 +9,11 @@ import (
 	"github.com/k1ender/task-master-go/internal/routes"
 )
 
+// @title Task Master API
+// @description Task Master API - Simple task manager
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	cfg := config.MustInit(".env")
 

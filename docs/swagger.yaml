@@ -1,0 +1,283 @@
+definitions:
+  handlers.CreateTaskRequest:
+    properties:
+      body:
+        type: string
+      title:
+        type: string
+    required:
+    - body
+    - title
+    type: object
+  handlers.LoginUserRequest:
+    properties:
+      password:
+        minLength: 8
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handlers.RegisterUserRequest:
+    properties:
+      password:
+        minLength: 8
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handlers.UpdateTaskRequest:
+    properties:
+      body:
+        type: string
+      completed:
+        type: boolean
+      title:
+        type: string
+    type: object
+  models.Task:
+    properties:
+      body:
+        type: string
+      completed:
+        type: boolean
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  models.User:
+    properties:
+      id:
+        type: integer
+      tasks:
+        items:
+          $ref: '#/definitions/models.Task'
+        type: array
+      username:
+        type: string
+    type: object
+  response.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: integer
+      success:
+        type: boolean
+    type: object
+info:
+  contact: {}
+  description: Task Master API - Simple task manager
+  title: Task Master API
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login a user
+      parameters:
+      - description: User details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Login a user
+      tags:
+      - Auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RegisterUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Register a new user
+      tags:
+      - Auth
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: Get all tasks for a user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Task'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all tasks for a user
+      tags:
+      - Task
+    post:
+      consumes:
+      - application/json
+      description: Create a new task
+      parameters:
+      - description: Task details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new task
+      tags:
+      - Task
+  /tasks/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a task by ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a task by ID
+      tags:
+      - Task
+    get:
+      consumes:
+      - application/json
+      description: Get a task by ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Task'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a task by ID
+      tags:
+      - Task
+    patch:
+      consumes:
+      - application/json
+      description: Update a task by ID
+      parameters:
+      - description: Task details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a task by ID
+      tags:
+      - Task
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

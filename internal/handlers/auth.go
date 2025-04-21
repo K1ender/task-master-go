@@ -32,6 +32,16 @@ type RegisterUserRequest struct {
 	Password string `json:"password" validate:"required,min=8"`
 }
 
+// @Summary Register a new user
+// @Description Register a new user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param user body RegisterUserRequest true "User details"
+// @Success 201 {object} models.User
+// @Failure 400 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /register [post]
 func (h *AuthHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	var payload RegisterUserRequest
 	if err := utils.ReadJSON(r, &payload); err != nil {
@@ -82,6 +92,17 @@ type LoginUserRequest struct {
 	Password string `json:"password" validate:"required,min=8"`
 }
 
+// @Summary Login a user
+// @Description Login a user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param user body LoginUserRequest true "User details"
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.Response
+// @Failure 401 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /login [post]
 func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	var payload LoginUserRequest
 	if err := utils.ReadJSON(r, &payload); err != nil {
