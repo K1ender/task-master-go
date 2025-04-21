@@ -10,25 +10,33 @@ import (
 )
 
 func New(db *gorm.DB, config *config.Config) *chi.Mux {
-	router := chi.NewRouter()
+	r := chi.NewRouter()
 
 	validator := validator.New(validator.WithRequiredStructEnabled())
 	authHandlers := handlers.NewAuthHandler(db, validator, config)
 	taskHandlers := handlers.NewTaskHandler(db, validator, config)
 
 	authMiddleware := middleware.Auth(db, config.JWT.Secret)
+	taskMiddleware := middleware.TaskMiddleware(db)
 
-	router.Post("/register",
+	r.Post("/register",
 		authHandlers.RegisterUser,
 	)
-	router.Post("/login",
+	r.Post("/login",
 		authHandlers.LoginUser,
 	)
 
-	router.Group(func(r chi.Router) {
+	r.Route("/tasks", func(r chi.Router) {
 		r.Use(authMiddleware)
-		r.Post("/tasks", taskHandlers.CreateTask)
+		r.Get("/", taskHandlers.GetTasks)
+		r.Post("/", taskHandlers.CreateTask)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Use(taskMiddleware)
+			r.Get("/", taskHandlers.GetTask)
+			r.Delete("/", taskHandlers.DeleteTask)
+			r.Patch("/", taskHandlers.UpdateTask)
+		})
 	})
 
-	return router
+	return r
 }
