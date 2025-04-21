@@ -7,6 +7,7 @@ import (
 	"github.com/k1ender/task-master-go/internal/db"
 	"github.com/k1ender/task-master-go/internal/models"
 	"github.com/k1ender/task-master-go/internal/routes"
+	"github.com/k1ender/task-master-go/internal/storage"
 )
 
 // @title Task Master API
@@ -20,7 +21,9 @@ func main() {
 	db := db.MustInit(cfg)
 	db.AutoMigrate(&models.User{}, &models.Task{})
 
-	router := routes.New(db, cfg)
+	storage := storage.NewStorage(db)
+
+	router := routes.New(db, cfg, storage)
 
 	http.ListenAndServe(":"+cfg.HttpServer.Port, router)
 }

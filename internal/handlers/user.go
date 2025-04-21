@@ -7,18 +7,18 @@ import (
 	"github.com/k1ender/task-master-go/internal/config"
 	"github.com/k1ender/task-master-go/internal/middleware"
 	"github.com/k1ender/task-master-go/internal/response"
-	"gorm.io/gorm"
+	"github.com/k1ender/task-master-go/internal/storage"
 )
 
 type UserHandler struct {
-	db       *gorm.DB
+	store    *storage.Storage
 	validate *validator.Validate
 	config   *config.Config
 }
 
-func NewUserHandler(db *gorm.DB, validator *validator.Validate, config *config.Config) *UserHandler {
+func NewUserHandler(store *storage.Storage, validator *validator.Validate, config *config.Config) *UserHandler {
 	return &UserHandler{
-		db:       db,
+		store:    store,
 		validate: validator,
 		config:   config,
 	}
@@ -35,6 +35,5 @@ func NewUserHandler(db *gorm.DB, validator *validator.Validate, config *config.C
 // @Security ApiKeyAuth
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetAuthUserFromContext(r.Context())
-
 	response.OK(w, user)
 }

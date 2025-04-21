@@ -8,20 +8,21 @@ import (
 	"github.com/k1ender/task-master-go/internal/config"
 	"github.com/k1ender/task-master-go/internal/models"
 	"github.com/k1ender/task-master-go/internal/response"
+	"github.com/k1ender/task-master-go/internal/storage"
 	"github.com/k1ender/task-master-go/internal/utils"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 type AuthHandler struct {
-	db       *gorm.DB
+	store    *storage.Storage
 	validate *validator.Validate
 	config   *config.Config
 }
 
-func NewAuthHandler(db *gorm.DB, validator *validator.Validate, config *config.Config) *AuthHandler {
+func NewAuthHandler(store *storage.Storage, validator *validator.Validate, config *config.Config) *AuthHandler {
 	return &AuthHandler{
-		db:       db,
+		store:    store,
 		validate: validator,
 		config:   config,
 	}
@@ -65,10 +66,10 @@ func (h *AuthHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		Password: string(hashed_password),
 	}
 
-	res := h.db.Create(&user)
+	err = h.store.Users.CreateUser(&user)
 
-	if res.Error != nil {
-		if err, ok := res.Error.(*pgconn.PgError); ok {
+	if err != nil {
+		if err, ok := err.(*pgconn.PgError); ok {
 			if err.ConstraintName == "uni_users_username" {
 				response.BadRequest(w, "Username already exists")
 				return
@@ -115,12 +116,10 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
+	user, err := h.store.Users.GetUserByUsername(payload.Username)
 
-	res := h.db.Where("username = ?", payload.Username).First(&user)
-
-	if res.Error != nil {
-		if res.Error == gorm.ErrRecordNotFound {
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
 			response.NotFound(w, "User not found")
 			return
 		}
