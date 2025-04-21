@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/k1ender/task-master-go/internal/config"
+	"github.com/k1ender/task-master-go/internal/middleware"
 	"github.com/k1ender/task-master-go/internal/models"
 	"github.com/k1ender/task-master-go/internal/response"
 	"github.com/k1ender/task-master-go/internal/utils"
@@ -31,6 +32,7 @@ type CreateTaskRequest struct {
 }
 
 func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
+	user := middleware.GetAuthUserFromContext(r.Context())
 	var payload CreateTaskRequest
 	if err := utils.ReadJSON(r, &payload); err != nil {
 		response.BadRequest(w, "Bad Request")
@@ -43,8 +45,9 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	task := models.Task{
-		Title: payload.Title,
-		Body:  payload.Body,
+		Title:  payload.Title,
+		Body:   payload.Body,
+		UserID: user.ID,
 	}
 
 	res := h.db.Create(&task)

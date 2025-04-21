@@ -43,7 +43,7 @@ func Auth(db *gorm.DB, jwtSecret string) func(http.Handler) http.Handler {
 			var userID int
 
 			if claims, ok := validatedToken.Claims.(jwt.MapClaims); ok {
-				userID = int(claims["user_id"].(uint))
+				userID = int(claims["user_id"].(float64))
 			} else {
 				response.Unauthorized(w, "Unauthorized")
 				return
