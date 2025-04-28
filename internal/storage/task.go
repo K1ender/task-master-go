@@ -32,7 +32,7 @@ func (s *TaskStoreGorm) GetTask(id uint) (*models.Task, error) {
 
 func (s *TaskStoreGorm) GetTasks(userID uint) ([]models.Task, error) {
 	var tasks []models.Task
-	return tasks, s.db.Where("user_id = ?", userID).Find(&tasks).Error
+	return tasks, s.db.Where("user_id = ?", userID).Find(&tasks).Order("id DESC").Error
 }
 
 func (s *TaskStoreGorm) UpdateTask(destination *models.Task, updates map[string]any) error {
