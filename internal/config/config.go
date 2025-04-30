@@ -3,6 +3,7 @@ package config
 import "github.com/ilyakaznacheev/cleanenv"
 
 type Config struct {
+	ENV        string `env:"ENV" env-required:"true"`
 	HttpServer HttpServer
 	Database   Database
 	JWT        JWT
@@ -23,6 +24,11 @@ type Database struct {
 type JWT struct {
 	Secret string `env:"JWT_SECRET" env-required:"true"`
 }
+
+const (
+	EnvProd = "prod"
+	EnvDev  = "dev"
+)
 
 func MustInit(path string) *Config {
 	var cfg Config

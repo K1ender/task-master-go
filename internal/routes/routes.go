@@ -2,6 +2,7 @@ package routes
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
@@ -15,7 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func New(db *gorm.DB, config *config.Config, store *storage.Storage) *chi.Mux {
+func New(db *gorm.DB, config *config.Config, store *storage.Storage, logger *slog.Logger) *chi.Mux {
 	r := chi.NewRouter()
 
 	docs.SwaggerInfo.Host = fmt.Sprintf("localhost:%s", config.HttpServer.Port)
@@ -25,9 +26,9 @@ func New(db *gorm.DB, config *config.Config, store *storage.Storage) *chi.Mux {
 
 	validator := validator.New(validator.WithRequiredStructEnabled())
 
-	userHandlers := handlers.NewUserHandler(store, validator, config)
-	authHandlers := handlers.NewAuthHandler(store, validator, config)
-	taskHandlers := handlers.NewTaskHandler(store, validator, config)
+	userHandlers := handlers.NewUserHandler(store, validator, config, logger)
+	authHandlers := handlers.NewAuthHandler(store, validator, config, logger)
+	taskHandlers := handlers.NewTaskHandler(store, validator, config, logger)
 
 	authMiddleware := middleware.Auth(db, config.JWT.Secret)
 	taskMiddleware := middleware.TaskMiddleware(db)

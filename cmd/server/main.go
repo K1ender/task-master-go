@@ -5,6 +5,7 @@ import (
 
 	"github.com/k1ender/task-master-go/internal/config"
 	"github.com/k1ender/task-master-go/internal/db"
+	"github.com/k1ender/task-master-go/internal/logger"
 	"github.com/k1ender/task-master-go/internal/models"
 	"github.com/k1ender/task-master-go/internal/routes"
 	"github.com/k1ender/task-master-go/internal/storage"
@@ -23,7 +24,11 @@ func main() {
 
 	storage := storage.NewStorage(db)
 
-	router := routes.New(db, cfg, storage)
+	logger := logger.MustInit(cfg)
+
+	router := routes.New(db, cfg, storage, logger)
+
+	logger.Info("Server started", "port", cfg.HttpServer.Port)
 
 	http.ListenAndServe(":"+cfg.HttpServer.Port, router)
 }

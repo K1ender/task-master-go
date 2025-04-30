@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -14,13 +15,15 @@ type UserHandler struct {
 	store    *storage.Storage
 	validate *validator.Validate
 	config   *config.Config
+	log      *slog.Logger
 }
 
-func NewUserHandler(store *storage.Storage, validator *validator.Validate, config *config.Config) *UserHandler {
+func NewUserHandler(store *storage.Storage, validator *validator.Validate, config *config.Config, logger *slog.Logger) *UserHandler {
 	return &UserHandler{
 		store:    store,
 		validate: validator,
 		config:   config,
+		log:      logger,
 	}
 }
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -16,13 +17,15 @@ type TaskHandler struct {
 	store    *storage.Storage
 	validate *validator.Validate
 	config   *config.Config
+	log      *slog.Logger
 }
 
-func NewTaskHandler(store *storage.Storage, validator *validator.Validate, config *config.Config) *TaskHandler {
+func NewTaskHandler(store *storage.Storage, validator *validator.Validate, config *config.Config, logger *slog.Logger) *TaskHandler {
 	return &TaskHandler{
 		store:    store,
 		validate: validator,
 		config:   config,
+		log:      logger,
 	}
 }
 
@@ -46,11 +49,13 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetAuthUserFromContext(r.Context())
 	var payload CreateTaskRequest
 	if err := utils.ReadJSON(r, &payload); err != nil {
+		h.log.Error("failed to read request body", slog.Any("error", err))
 		response.BadRequest(w, "Bad Request")
 		return
 	}
 
 	if err := h.validate.Struct(payload); err != nil {
+		h.log.Error("failed to validate request body", slog.Any("error", err))
 		response.ValidationError(w, err.(validator.ValidationErrors))
 		return
 	}
@@ -64,6 +69,7 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	_, err := h.store.Tasks.CreateTask(&task)
 
 	if err != nil {
+		h.log.Error("failed to create task", slog.Any("error", err))
 		response.InternalServerError(w)
 		return
 	}
@@ -86,6 +92,7 @@ func (h *TaskHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	tasks, err := h.store.Tasks.GetTasks(user.ID)
 
 	if err != nil {
+		h.log.Error("failed to get tasks", slog.Any("error", err))
 		response.InternalServerError(w)
 		return
 	}
@@ -126,6 +133,7 @@ func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	err := h.store.Tasks.DeleteTask(task.ID)
 
 	if err != nil {
+		h.log.Error("failed to delete task", slog.Any("error", err))
 		response.InternalServerError(w)
 		return
 	}
@@ -156,16 +164,18 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	task := middleware.GetTaskFromContext(r.Context())
 	var payload UpdateTaskRequest
 	if err := utils.ReadJSON(r, &payload); err != nil {
+		h.log.Error("failed to read request body", slog.Any("error", err))
 		response.BadRequest(w, "Bad Request")
 		return
 	}
 
 	if err := h.validate.Struct(payload); err != nil {
+		h.log.Error("failed to validate request body", slog.Any("error", err))
 		response.ValidationError(w, err.(validator.ValidationErrors))
 		return
 	}
 
-	updates := map[string]interface{}{}
+	updates := map[string]any{}
 
 	if payload.Title != "" {
 		updates["title"] = payload.Title
@@ -187,6 +197,7 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	err := h.store.Tasks.UpdateTask(task, updates)
 
 	if err != nil {
+		h.log.Error("failed to update task", slog.Any("error", err))
 		response.InternalServerError(w)
 		return
 	}
