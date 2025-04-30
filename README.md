@@ -5,7 +5,6 @@ A simple and extendable backend for task management, built with Go. REST API wit
 ## 🚀 Features
 - User registration and JWT-based login
 - Full CRUD for tasks
-- Role system: user / admin
 - PostgreSQL integration
 - Input validation
 - Swagger documentation
