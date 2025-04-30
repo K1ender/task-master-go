@@ -1,6 +1,6 @@
 # Task Master Go
 
-A simple and extendable backend for task management, built with Go. REST API with authentication, user roles, and PostgreSQL data storage.
+A simple and extendable backend for task management, built with Go. REST API with authentication, and PostgreSQL data storage.
 
 ## 🚀 Features
 - User registration and JWT-based login
